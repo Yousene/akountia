@@ -1,0 +1,26 @@
+{
+    "name": "easycollab/quicky",
+    "description": "CRUD generator.",
+    "authors": [
+        {
+            "name": "EasyCollab",
+            "email": "mahmoud@easy-collab.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "laravelcollective/html": "^5.5"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "EasyCollab\\Quicky\\QuickyServiceProvider"
+            ]
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "EasyCollab\\Quicky\\": "src/"
+        }
+    }
+}
