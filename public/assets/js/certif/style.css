@@ -1,0 +1,95 @@
+:root {
+  --dark-color: #212121;
+}
+
+body {
+  font-family: system-ui;
+  text-align: center;
+  background-color: #fff;
+  margin-top: 40px;
+  font-size: 1.5em;
+}
+
+h4 {
+  font-weight: normal;
+  margin-bottom: 5px;
+}
+h1 {
+  font-weight: normal;
+  margin-top: 0;
+  margin-bottom: 40px;
+  font-size: 2em;
+}
+
+td {
+  font-size: 0.6em;
+}
+
+#signatur {
+    text-align: left;
+}
+
+h5 {
+  font-weight: normal;
+  margin-top: 0;
+  margin-bottom: 40px;
+  font-size: 1em;
+}
+
+img {
+  height: 250px;
+}
+
+table {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+td,th{
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+main {
+  display: flex;
+  flex-direction: row;
+  align-self: center;
+}
+main * {
+  margin-bottom: 12px;
+}
+
+input {
+  text-align: center;
+  font-size: large;
+  outline: none;
+  border: none;
+  border-bottom: 1px solid black;
+  text-transform: capitalize;
+}
+
+/* for styling the autocomplete style */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 5000s ease-in-out 0s;
+  -webkit-text-fill-color: var(--dark-color) !important;
+}
+
+button {
+  background: blue;
+  color: #fff;
+  border: none;
+  font-size: 0.8em;
+  padding: 5px 15px;
+  margin: 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+a {
+  color: #6492f6;
+}
+
+/* dark mode css */
+/* 
