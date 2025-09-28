@@ -20,13 +20,6 @@ class MenuSeeder extends Seeder
         DB::table('menus')->truncate();
         $mainMenus = [
             'Tableaux de bord' => ['id' => 1, 'page' => 'admin', 'icon' => 'home-circle'],
-            'Formations' => ['id' => 11, 'page' => 'course.index', 'icon' => 'book-content', 'desc' => 'Gestion des formations'],
-            'Catégories' => ['id' => 12, 'page' => 'category.index', 'icon' => 'category', 'desc' => 'Gestion des catégories'],
-            'Avis' => ['id' => 13, 'page' => 'review.index', 'icon' => 'message-square', 'desc' => 'Gestion des avis'],
-            'Clients' => ['id' => 14, 'page' => 'client.index', 'icon' => 'user', 'desc' => 'Gestion des clients'],
-            'Prospects' => ['id' => 15, 'page' => 'lead.index', 'icon' => 'money', 'desc' => 'Gestion des prospects'],
-            'Contacts' => ['id' => 16, 'page' => 'contact.index', 'icon' => 'message-dots', 'desc' => 'Gestion des contacts'],
-            'Certificats' => ['id' => 17, 'page' => 'certificate.index', 'icon' => ' bxs-graduation', 'desc' => 'Gestion des certificats'],
             'Sécurité' => ['id' => 18, 'page' => null, 'icon' => 'check-shield'],
             'Paramétrage' => ['id' => 19, 'page' => null, 'icon' => 'cog'],
         ];
