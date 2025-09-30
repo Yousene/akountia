@@ -5,26 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>@yield('title', 'Afrique Academy')</title>
-    <meta name="description" content="@yield('meta_description', 'Afrique Academy - Formation professionnelle en ligne')">
+    <title>@yield('title', 'Akountia')</title>
+    <meta name="description" content="@yield('meta_description', 'Akountia - Application de gestion comptable moderne')">
 
     <!-- OpenGraph Meta Tags -->
-    <meta property="og:title" content="@yield('title', 'Afrique Academy')">
-    <meta property="og:description" content="@yield('meta_description', 'Afrique Academy - Formation professionnelle en ligne')">
+    <meta property="og:title" content="@yield('title', 'Akountia')">
+    <meta property="og:description" content="@yield('meta_description', 'Akountia - Application de gestion comptable moderne')">
     <meta property="og:image" content="@yield('og_image', asset('assets/img/logo/logo_home_afrique-academy.svg'))">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Afrique Academy">
+    <meta property="og:site_name" content="Akountia">
     <meta property="og:locale" content="fr_FR">
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="@yield('title', 'Afrique Academy')">
-    <meta name="twitter:description" content="@yield('meta_description', 'Afrique Academy - Formation professionnelle en ligne')">
+    <meta name="twitter:title" content="@yield('title', 'Akountia')">
+    <meta name="twitter:description" content="@yield('meta_description', 'Akountia - Application de gestion comptable moderne')">
     <meta name="twitter:image" content="@yield('og_image', asset('assets/img/logo/logo_home_afrique-academy.svg'))">
 
     <!-- Autres Meta Tags -->
-    <meta name="author" content="Afrique Academy">
+    <meta name="author" content="Akountia">
     <meta name="theme-color" content="#00556e">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -47,7 +47,7 @@
 
     <style>
         :root {
-            /* Couleurs principales d'Afrique Academy */
+            /* Couleurs principales d'Akountia */
             --primary: #00556e;
             --primary-hover: #004a61;
             --primary-active: #003f54;
@@ -127,7 +127,7 @@
 <body>
     <div class="container">
         <div class="logo-container">
-            <img src="{{ asset('assets/img/logo/logo_home_afrique-academy.svg') }}" alt="Afrique Academy" />
+            <img src="{{ asset('assets/img/logo/logo_home_afrique-academy.svg') }}" alt="Akountia" />
         </div>
         @yield('content')
     </div>

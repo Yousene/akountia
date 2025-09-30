@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -17,9 +16,9 @@ class ApparencesSeeder extends Seeder
     public function run()
     {
         DB::table('apparences')->insert([
-            'label' => 'Afrique Academy',
-            'title' => 'Afrique Academy',
-            'logo_titre' => 'Afrique Academy',
+            'label' => 'Akountia',
+            'title' => 'Akountia',
+            'logo_titre' => 'Akountia',
             'layout' => 'verticalmoderne',
             'logo' => '/assets/img/logo/small_logo_afrique-academy.svg',
             'logo_home' => '/assets/img/logo/logo_home_afrique-academy.svg',

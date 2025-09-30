@@ -1,7 +1,7 @@
 {
-    "name": "laravel/laravel",
+    "name": "akountia/akountia",
     "type": "project",
-    "description": "The Laravel Framework.",
+    "description": "Akountia - Application de gestion comptable moderne.",
     "keywords": [
         "framework",
         "laravel"

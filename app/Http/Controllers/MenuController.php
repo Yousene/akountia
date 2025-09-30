@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Menu;
 use App\Models\Ressource;
+use App\Models\Util;
 use Illuminate\Http\Request;
 use App\Http\Controllers\CrudActions;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
-
 
 class MenuController extends Controller
 {
@@ -40,28 +40,45 @@ class MenuController extends Controller
             'nestedItems' => $nestedItems,
             'originalData' => $allMenus,
             'ressources' => Ressource::all()->where('deleted', "0"),
-            'routes' => $routeCollection
+            'routes' => $routeCollection,
+            'icons' => Util::getFAIcons(),
+            'menus' => $this->viewsData['menus']
         ]);
     }
 
     public function update($recordId, Request $request)
     {
         $record = ($this->getClassName())::find($recordId);
-        if ($request->isMethod('post')) {
+
+        // Gérer les requêtes PUT (depuis le modal) et POST (depuis la page séparée)
+        if ($request->isMethod('put') || $request->isMethod('post')) {
             $data = $request->all();
             $rules = [];
             $validator =  Validator::make($request->all(), $rules);
             if ($validator->fails()) {
+                if ($request->isMethod('put')) {
+                    // Pour les requêtes PUT (modal), retourner JSON
+                    return response()->json(['errors' => $validator->errors()], 422);
+                }
                 return redirect()->back()->withInput()->withErrors($validator);
             } else {
                 $record->update($request->all());
-                Redirect::to(route('menu_list'))->send();
+
+                if ($request->isMethod('put')) {
+                    // Pour les requêtes PUT (modal), retourner JSON de succès
+                    return response()->json(['success' => true, 'message' => 'Menu mis à jour avec succès']);
+                }
+
+                return redirect()->route('menu_list')->with('success', 'Menu mis à jour avec succès');
             }
         }
+
+        // Affichage de la page d'édition (GET request)
         $routeCollection = \Illuminate\Support\Facades\Route::getRoutes();
         $this->viewsData['record'] = $record;
         $this->viewsData['routes'] = $routeCollection;
         $this->viewsData['ressources'] = Ressource::all()->where('deleted', "0");
+        $this->viewsData['icons'] = Util::getFAIcons();
         return view('back/menu/update', $this->viewsData);
     }
 
@@ -81,6 +98,7 @@ class MenuController extends Controller
         }
         $this->viewsData['routes'] = $routeCollection;
         $this->viewsData['ressources'] = Ressource::all()->where('deleted', "0");
+        $this->viewsData['icons'] = Util::getFAIcons();
         return view('back/' . $this->crudId . '/create', $this->viewsData);
     }
 

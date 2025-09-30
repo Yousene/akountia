@@ -130,8 +130,8 @@
                     </ul>
                     <div class="header-search-wrapper hide-on-med-and-down"><i class="material-icons">search</i>
                         <form action="{{ route('expedition_list') }}">
-                            <input class="header-search-input z-depth-2" type="text" name="exp" placeholder="Recherche"
-                                data-search="template-list" />
+                            <input class="header-search-input z-depth-2" type="text" name="exp"
+                                placeholder="Recherche" data-search="template-list" />
                         </form>
                         <ul class="search-list collection display-none"></ul>
                     </div>
@@ -221,8 +221,7 @@
 
 
 
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST"
-                            style="display: none;">
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                             @csrf
                         </form>
 
@@ -419,8 +418,9 @@
 
         <ul class="sidenav sidenav-collapsible leftside-navigation collapsible sidenav-fixed hide-on-large-only menu-shadow"
             id="slide-out" data-menu="menu-navigation" data-collapsible="menu-accordion">
-            <h5 style="margin:16px;margin-block:25px;color:#1991ce!important"><a  href="{{ route('user.profil') }}"><i class="material-icons left"
-                    style="font-size: 30px!important">account_circle</i>{{ Auth::user()->ClientDetail->libelle }}
+            <h5 style="margin:16px;margin-block:25px;color:#1991ce!important"><a href="{{ route('user.profil') }}"><i
+                        class="material-icons left"
+                        style="font-size: 30px!important">account_circle</i>{{ Auth::user()->ClientDetail->libelle }}
                 </a></h5>
             <hr>
             <li class="bold"><a class="waves-effect waves-cyan" href="{{ route('Dashboard_Client') }}"><i
@@ -447,13 +447,13 @@
             <li class="bold"><a class="waves-effect waves-cyan" href="{{ route('reclamation_list') }}"><i
                         class="material-icons">record_voice_over</i>Réclamation</a>
             </li>
-            <li class="bold" style="margin-bottom: 15px;"><a class="waves-effect waves-cyan" href="{{ route('user_calendar') }}"><i
-                        class="material-icons">date_range</i>Calendrier</a>
+            <li class="bold" style="margin-bottom: 15px;"><a class="waves-effect waves-cyan"
+                    href="{{ route('user_calendar') }}"><i class="material-icons">date_range</i>Calendrier</a>
             </li>
 
             <hr>
             <li class="bold"><a class="waves-effect waves-cyan" href="{{ route('logout') }}"
-                onclick="event.preventDefault();
+                    onclick="event.preventDefault();
                                      document.getElementById('logout-form').submit();"><i
                         class="material-icons ">exit_to_app</i>Se déconnecter</a>
             </li>
@@ -475,9 +475,9 @@
 
     <footer class="page-footer footer footer-static footer-dark gradient-shadow navbar-border navbar-shadow">
         <div class="footer-copyright">
-            <div class="container"><span>&copy; <?php echo date('Y'); ?> <a href="javascript:void()">GO TAWSSIL</a> All
+            <div class="container"><span>&copy; <?php echo date('Y'); ?> <a href="javascript:void()">Akountia</a> All
                     rights reserved.</span><span class="right hide-on-small-only">Design and Developed by <a
-                        href="javascript:void()">GO TAWSSIL</a></span></div>
+                        href="javascript:void()">Akountia</a></span></div>
         </div>
     </footer>
 

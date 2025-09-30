@@ -9,37 +9,55 @@ class Menu extends Model
     protected $table = 'menus';
     protected $guarded = [];
 
-    public static function fetchAll(){
+    public static function fetchAll()
+    {
         return \DB::table("menus")
                     ->select("*")
                     ->leftJoin('menus as m', 'm.parent_menu', '=', 'menus.id')
-                    ->where('menus.deleted','0')->get();
+                    ->where('menus.deleted', '0')->get();
     }
 
-    public function getSubMenus($id){
+    public function getSubMenus($id)
+    {
         return Menu::orderBy('ordre', 'ASC')
-                    ->select("menus.*",
-                        \DB::raw('ressources.name as ressource_name'))
+                    ->select(
+                        "menus.*",
+                        \DB::raw('ressources.name as ressource_name')
+                    )
                     ->leftJoin('ressources', 'ressources.id', '=', 'menus.ressource')
-                    ->where('menus.deleted','0')
+                    ->where('menus.deleted', '0')
                     ->where('parent_menu', $id)->get();
         //return Menu::orderBy('ordre', 'ASC')->where('deleted','0')->where('parent_menu', $id)->get();
     }
-    public static function getMenus(){
-        
+    public static function getMenus()
+    {
+
         return Menu::orderBy('ordre', 'ASC')
-                    ->select("menus.*",
-                        \DB::raw('ressources.name as ressource_name'))
+                    ->select(
+                        "menus.*",
+                        \DB::raw('ressources.name as ressource_name')
+                    )
                     ->leftJoin('ressources', 'ressources.id', '=', 'menus.ressource')
-                    ->where('menus.deleted','0')->get();
+                    ->where('menus.deleted', '0')->get();
     }
 
-    public static function getMenuName($id){
-        if(!is_numeric($id)){
+    public static function getMenuName($id)
+    {
+        if (!is_numeric($id)) {
             return "";
         }
-        $menu = Menu::where('id',$id)->first();
+        $menu = Menu::where('id', $id)->first();
         return $menu->titre ?? "";
+    }
+
+    /**
+     * Récupère tous les menus pour l'affichage dans les vues
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public static function getMenusForView()
+    {
+        return self::getMenus();
     }
 
 }

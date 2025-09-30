@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 
 class {Model}Controller extends Controller
 {
@@ -60,13 +61,20 @@ class {Model}Controller extends Controller
      */
     public function store(Request $request)
     {
-        $rules = [];
+        $rules = [
+{validationRules}        ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return redirect()->back()->withInput()->withErrors($validator);
         } else {
-            {Model}::create($request->all());
-            Redirect::to(route('{projetId}.index'))->send();
+            $data = $request->all();
+
+            // Gestion des uploads de fichiers
+{fileUploads}
+
+            {Model}::create($data);
+            return redirect()->route('{projetId}.index')
+                             ->with('success', 'Enregistrement créé avec succès ! ✅');
         }
     }
     /**
@@ -94,13 +102,20 @@ class {Model}Controller extends Controller
     {
         //
         $data = $request->all();
-        $rules = [];
+        $rules = [
+{validationRules}        ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return redirect()->back()->withInput()->withErrors($validator);
         } else {
-            ${projetId}->update($request->all());
-            Redirect::to(route('{projetId}.index'))->send();
+            $data = $request->all();
+
+            // Gestion des uploads de fichiers
+{fileUploads}
+
+            ${projetId}->update($data);
+            return redirect()->route('{projetId}.index')
+                             ->with('success', 'Enregistrement modifié avec succès ! ✅');
         }
         return redirect()->back();
     }
@@ -113,8 +128,20 @@ class {Model}Controller extends Controller
      */
     public function destroy({Model} ${projetId}): JsonResponse
     {
-        ${projetId}->update(['deleted' => 1, 'deleted_at' => date("Y-m-d H:i:s"), 'deleted_by' => Auth::user()->id]);
-        return response()->json(['success' => true, 'message' => "L'enregistrement a été supprimé avec succès"]);
+        try {
+            ${projetId}->update(['deleted' => 1, 'deleted_at' => date("Y-m-d H:i:s"), 'deleted_by' => Auth::user()->id]);
+            return response()->json([
+                'success' => true,
+                'message' => "✅ L'enregistrement a été supprimé avec succès",
+                'type' => 'success'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => "❌ Erreur lors de la suppression : " . $e->getMessage(),
+                'type' => 'error'
+            ], 500);
+        }
     }
 
 

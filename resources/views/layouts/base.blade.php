@@ -12,7 +12,7 @@
         content="materialize, admin template, dashboard template, flat admin template, responsive admin template, eCommerce dashboard, analytic dashboard" />
     <meta name="author" content="ThemeSelect" />
     <title>
-        Tawssil
+        Akountia
     </title>
     <link rel="apple-touch-icon" href="/assets/images/favicon/apple-touch-icon-152x152.png" />
     <link rel="shortcut icon" type="image/x-icon" href="/assets/images/favicon/favicon-32x32.png" />
@@ -50,52 +50,54 @@
 <!-- END: Head-->
 
 <style>
-.sidenav li>a>i.material-icons,
-.sidenav li a.collapsible-header>i.material-icons {
-    font-size: 24px;
-}
+    .sidenav li>a>i.material-icons,
+    .sidenav li a.collapsible-header>i.material-icons {
+        font-size: 24px;
+    }
 
-input[type=number] {
-    height: 30px;
-    line-height: 30px;
-    font-size: 16px;
-    padding: 0 8px;
-}
+    input[type=number] {
+        height: 30px;
+        line-height: 30px;
+        font-size: 16px;
+        padding: 0 8px;
+    }
 
-input[type=number]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    cursor: pointer;
-    display: block;
-    width: 8px;
-    color: #333;
-    text-align: center;
-    position: relative;
+    input[type=number]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        cursor: pointer;
+        display: block;
+        width: 8px;
+        color: #333;
+        text-align: center;
+        position: relative;
 
-}
+    }
 
-input[type=number]::-webkit-inner-spin-button {
-    opacity: 1;
-    background: #eee url('/assets/images/icon/YYySO.png') no-repeat 50% 50%;
-    width: 14px;
-    height: 14px;
-    padding: 4px;
-    position: relative;
-    right: 4px;
-    border-radius: 28px;
-}
+    input[type=number]::-webkit-inner-spin-button {
+        opacity: 1;
+        background: #eee url('/assets/images/icon/YYySO.png') no-repeat 50% 50%;
+        width: 14px;
+        height: 14px;
+        padding: 4px;
+        position: relative;
+        right: 4px;
+        border-radius: 28px;
+    }
 
-.select2-container--default .select2-selection--single .select2-selection__arrow b {
-    border-color: rgb(25 145 145) transparent transparent;
-}
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+        border-color: rgb(25 145 145) transparent transparent;
+    }
 </style>
 
-<body class="
+<body
+    class="
             vertical-layout
             page-header-light
             vertical-menu-collapsible vertical-dark-menu
             preload-transitions
             2-columns
-        " data-open="click" data-menu="vertical-dark-menu" data-col="2-columns">
+        "
+    data-open="click" data-menu="vertical-dark-menu" data-col="2-columns">
 
     <!-- END: Header-->
     <ul class="display-none" id="default-search-main">
@@ -109,7 +111,8 @@ input[type=number]::-webkit-inner-spin-button {
                 <div class="display-flex">
                     <div class="display-flex align-item-center flex-grow-1">
                         <div class="avatar">
-                            <img src="/assets/images/icon/pdf-image.png" width="24" height="30" alt="sample image" />
+                            <img src="/assets/images/icon/pdf-image.png" width="24" height="30"
+                                alt="sample image" />
                         </div>
                         <div class="member-info display-flex flex-column">
                             <span class="black-text">Two new item submitted</span><small class="grey-text">Marketing
@@ -127,7 +130,8 @@ input[type=number]::-webkit-inner-spin-button {
                 <div class="display-flex">
                     <div class="display-flex align-item-center flex-grow-1">
                         <div class="avatar">
-                            <img src="/assets/images/icon/doc-image.png" width="24" height="30" alt="sample image" />
+                            <img src="/assets/images/icon/doc-image.png" width="24" height="30"
+                                alt="sample image" />
                         </div>
                         <div class="member-info display-flex flex-column">
                             <span class="black-text">52 Doc file Generator</span><small class="grey-text">FontEnd
@@ -145,7 +149,8 @@ input[type=number]::-webkit-inner-spin-button {
                 <div class="display-flex">
                     <div class="display-flex align-item-center flex-grow-1">
                         <div class="avatar">
-                            <img src="/assets/images/icon/xls-image.png" width="24" height="30" alt="sample image" />
+                            <img src="/assets/images/icon/xls-image.png" width="24" height="30"
+                                alt="sample image" />
                         </div>
                         <div class="member-info display-flex flex-column">
                             <span class="black-text">25 Xls File Uploaded</span><small class="grey-text">Digital
@@ -163,7 +168,8 @@ input[type=number]::-webkit-inner-spin-button {
                 <div class="display-flex">
                     <div class="display-flex align-item-center flex-grow-1">
                         <div class="avatar">
-                            <img src="/assets/images/icon/jpg-image.png" width="24" height="30" alt="sample image" />
+                            <img src="/assets/images/icon/jpg-image.png" width="24" height="30"
+                                alt="sample image" />
                         </div>
                         <div class="member-info display-flex flex-column">
                             <span class="black-text">Anna Strong</span><small class="grey-text">Web Designer</small>
@@ -296,79 +302,79 @@ input[type=number]::-webkit-inner-spin-button {
 
 
     <script>
-    $(document).ready(function() {
+        $(document).ready(function() {
 
-        $('.timepicker').timepicker({
-            twelveHour: false,
-            showClearBtn: true,
-            autoClose: true,
-            showView: 'hours',
-            i18n: {
-                months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août',
-                    'Septembre', 'Octobre', 'Novembre', 'Décembre'
-                ],
+            $('.timepicker').timepicker({
+                twelveHour: false,
+                showClearBtn: true,
+                autoClose: true,
+                showView: 'hours',
+                i18n: {
+                    months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août',
+                        'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                    ],
 
-                monthsShort: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jui', 'Jui', 'Aoû', 'Sep', 'Oct',
-                    'Nov', 'Déc'
-                ],
-                weekdaysShort: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
-                today: 'Aujourd\'hui',
-                cancel: 'Annuler',
-                done: 'OK',
-                clear: 'Effacer'
-            }
-        });
-        $('.datepicker').datepicker({
-            firstDay: true,
-            format: 'yyyy-mm-dd',
-            clear: 'effacer',
-            formatSubmit: 'yyyy/mm/dd',
-            showClearBtn: true,
-            autoClose: true,
-            i18n: {
-                months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août',
-                    'Septembre', 'Octobre', 'Novembre', 'Décembre'
-                ],
-                monthsShort: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jui', 'Jui', 'Aoû', 'Sep', 'Oct',
-                    'Nov', 'Déc'
-                ],
-                weekdaysShort: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
-                today: 'Aujourd\'hui',
-                cancel: 'Annuler',
-                done: 'OK',
-                clear: 'Effacer'
-            }
-        });
-        $(".select2").select2({
-            dropdownAutoWidth: true,
-            width: '100%'
-        });
+                    monthsShort: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jui', 'Jui', 'Aoû', 'Sep', 'Oct',
+                        'Nov', 'Déc'
+                    ],
+                    weekdaysShort: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
+                    today: 'Aujourd\'hui',
+                    cancel: 'Annuler',
+                    done: 'OK',
+                    clear: 'Effacer'
+                }
+            });
+            $('.datepicker').datepicker({
+                firstDay: true,
+                format: 'yyyy-mm-dd',
+                clear: 'effacer',
+                formatSubmit: 'yyyy/mm/dd',
+                showClearBtn: true,
+                autoClose: true,
+                i18n: {
+                    months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août',
+                        'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                    ],
+                    monthsShort: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jui', 'Jui', 'Aoû', 'Sep', 'Oct',
+                        'Nov', 'Déc'
+                    ],
+                    weekdaysShort: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
+                    today: 'Aujourd\'hui',
+                    cancel: 'Annuler',
+                    done: 'OK',
+                    clear: 'Effacer'
+                }
+            });
+            $(".select2").select2({
+                dropdownAutoWidth: true,
+                width: '100%'
+            });
 
-        const App = {
-            mounted() {
-                this.loadData();
-                $('.tooltipped').tooltip();
-            },
-            methods: {
-                loadData() {
-                    if ($("#list-datatable").length > 0) {
-                        $("#list-datatable").DataTable({
-                            "aaSorting": [
-                                [0, "desc"]
-                            ],
-                            "language": {
-                                url: '/assets/vendors/data-tables/i18n/fr_fr.json'
-                            }
-                        });
-                    };
-
+            const App = {
+                mounted() {
+                    this.loadData();
+                    $('.tooltipped').tooltip();
                 },
-            },
-        }
+                methods: {
+                    loadData() {
+                        if ($("#list-datatable").length > 0) {
+                            $("#list-datatable").DataTable({
+                                "aaSorting": [
+                                    [0, "desc"]
+                                ],
+                                "language": {
+                                    url: '/assets/vendors/data-tables/i18n/fr_fr.json'
+                                }
+                            });
+                        };
 
-        Vue.createApp(App).mount('#app');
+                    },
+                },
+            }
 
-    });
+            Vue.createApp(App).mount('#app');
+
+        });
     </script>
 
     @yield('js')

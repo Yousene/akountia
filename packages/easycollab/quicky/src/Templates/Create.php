@@ -2,10 +2,54 @@
 @section('css')
 <link rel="stylesheet" href="/assets/vendor/libs/select2/select2.css" />
 <link rel="stylesheet" href="/assets/vendor/libs/flatpickr/flatpickr.css" />
+<style>
+    .file-upload-container {
+        position: relative;
+    }
 
+    .file-preview {
+        padding: 15px;
+        border: 2px dashed #e3e6f0;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        text-align: center;
+    }
+
+    .preview-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .file-info {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .existing-file .alert {
+        margin-bottom: 10px;
+    }
+</style>
 @stop
 @section('content')
 <div class="container-fluid flex-grow-1 container-p-y">
+    <!-- Messages d'alerte -->
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bx bx-error-circle me-2"></i>
+            <strong>Erreurs de validation :</strong>
+            <ul class="mb-0 mt-2">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
         <div class="d-flex flex-column justify-content-center">
             <h4 class="py-3 mb-4">Gestion des {projetId}s</h4>
@@ -26,7 +70,7 @@
     <!-- Multi Column with Form Separator -->
     <div class="card mb-4">
         <h5 class="card-header"></h5>
-        <form class="card-body" method="POST" action="{{ route('{projetId}.store') }}">
+        <form class="card-body" method="POST" action="{{ route('{projetId}.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="row g-3">
                 {formTypes}
@@ -73,5 +117,56 @@
             time_24hr:true
         });
     });
+
+    // Fonction pour prévisualiser les fichiers
+    function previewFile(input, fieldId) {
+        const file = input.files[0];
+        const previewDiv = document.getElementById('preview-' + fieldId);
+        const imgPreview = document.getElementById('img-preview-' + fieldId);
+        const fileInfo = document.getElementById('file-info-' + fieldId);
+
+        if (file) {
+            previewDiv.style.display = 'block';
+
+            // Afficher les informations du fichier
+            const fileName = fileInfo.querySelector('.file-name');
+            const fileSize = fileInfo.querySelector('.file-size');
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+
+            // Preview pour les images
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imgPreview.src = e.target.result;
+                    imgPreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imgPreview.style.display = 'none';
+            }
+        }
+    }
+
+    // Fonction pour effacer la preview
+    function clearPreview(fieldId) {
+        const input = document.getElementById(fieldId);
+        const previewDiv = document.getElementById('preview-' + fieldId);
+        const imgPreview = document.getElementById('img-preview-' + fieldId);
+
+        input.value = '';
+        previewDiv.style.display = 'none';
+        imgPreview.src = '';
+        imgPreview.style.display = 'none';
+    }
+
+    // Fonction pour formater la taille du fichier
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
 </script>
 @stop

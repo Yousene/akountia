@@ -20,6 +20,7 @@ class MenuSeeder extends Seeder
         DB::table('menus')->truncate();
         $mainMenus = [
             'Tableaux de bord' => ['id' => 1, 'page' => 'admin', 'icon' => 'home-circle'],
+            'Générateur CRUD' => ['id' => 20, 'page' => 'quicky', 'icon' => 'code-alt'],
             'Sécurité' => ['id' => 18, 'page' => null, 'icon' => 'check-shield'],
             'Paramétrage' => ['id' => 19, 'page' => null, 'icon' => 'cog'],
         ];

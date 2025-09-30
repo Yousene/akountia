@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'TAWSSIL'),
+    'name' => env('APP_NAME', 'Akountia'),
 
     /*
     |--------------------------------------------------------------------------
@@ -178,7 +178,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Riverskies\Laravel\MobileDetect\MobileDetectServiceProvider::class,
-        Laravel\Sanctum\SanctumServiceProvider::class
+        Laravel\Sanctum\SanctumServiceProvider::class,
+        EasyCollab\Quicky\QuickyServiceProvider::class
 
 
     ],

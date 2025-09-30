@@ -8,7 +8,7 @@ use Yajra\DataTables\DataTables;
 class {CLASS_NAME} extends Model
 {
     protected $table = '{TABEL_NAME}';
-    protected $guarded = [];
+    protected $guarded = [];{CASTS}
 
     {FK}
 

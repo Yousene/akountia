@@ -11,13 +11,53 @@ class Quicky extends Model
 {
     protected $table = 'users';
 
+    /**
+     * Normalise les données $_POST pour éviter les erreurs
+     */
+    private static function normalizePostData()
+    {
+        // Arrays principaux
+        $arrays = ['Identifiant', 'Label', 'formElement', 'del', 'visible', 'inGrid', 'size'];
+        foreach ($arrays as $key) {
+            if (!isset($_POST[$key]) || !is_array($_POST[$key])) {
+                $_POST[$key] = [];
+            }
+        }
+
+        // Arrays imbriqués pour les options
+        $nestedArrays = ['Select_cle', 'Select_valeur', 'Radio_cle', 'Radio_valeur', 'Checkbox_cle', 'Checkbox_valeur', 'skmodel', 'skkey', 'skvalue'];
+        foreach ($nestedArrays as $key) {
+            if (!isset($_POST[$key]) || !is_array($_POST[$key])) {
+                $_POST[$key] = [];
+            }
+        }
+
+        // Valeurs simples
+        if (!isset($_POST['projet'])) {
+            $_POST['projet'] = '';
+        }
+        if (!isset($_POST['projetid'])) {
+            $_POST['projetid'] = '';
+        }
+        if (!isset($_POST['serverSide'])) {
+            $_POST['serverSide'] = 0;
+        }
+        if (!isset($_POST['colNumber'])) {
+            $_POST['colNumber'] = 6;
+        }
+    }
+
     public static function genListView()
     {
+        // S'assurer que les données existent
+        if (!isset($_POST['Identifiant']) || !is_array($_POST['Identifiant'])) {
+            $_POST['Identifiant'] = [];
+        }
 
         $th = $td = $serverSide = "";
         $serverSideColumns = ["{data: '',}"];
         foreach ($_POST['Identifiant'] as $key => $value) {
-            if ($_POST['del'][$key] == 0 && $_POST['inGrid'][$key] == 1 && $_POST['formElement'][$key] != "primary_key") {
+            if ($_POST['del'][$key] == 0 && $_POST['inGrid'][$key] == 1 && $_POST['formElement'][$key] != "primary_key" && $_POST['formElement'][$key] != "hidden") {
 
                 $label = $_POST['Label'][$key];
                 if ($_POST["serverSide"] == 1) {
@@ -29,15 +69,95 @@ class Quicky extends Model
         }
 
         foreach ($_POST['Identifiant'] as $key => $value) {
-            if ($_POST['del'][$key] == 0 && $_POST['inGrid'][$key] == 1 && $_POST['formElement'][$key] != "primary_key") {
+            if ($_POST['del'][$key] == 0 && $_POST['inGrid'][$key] == 1 && $_POST['formElement'][$key] != "primary_key" && $_POST['formElement'][$key] != "hidden") {
                 $id = $_POST['Identifiant'][$key];
                 $type = $_POST['formElement'][$key];
                 switch ($type) {
                     case "secondary_key":
-                        $skvalue = $_POST['skvalue'][$key];
-                        $recordVar = strtolower($_POST['skmodel'][$key]) . "Detail";
+                        $skvalue = isset($_POST['skvalue'][$key]) ? $_POST['skvalue'][$key] : 'name';
+                        $recordVar = strtolower(isset($_POST['skmodel'][$key]) ? $_POST['skmodel'][$key] : 'Model') . "Detail";
                         $td .= "
                                             <td> {{ \$record->$recordVar->$skvalue }} </td>";
+                        break;
+                    case "file":
+                        $td .= "
+                                            <td>
+                                                @if(\$record->$id)
+                                                    <a href=\"{{ Storage::url(\$record->$id) }}\" target=\"_blank\" class=\"btn btn-sm btn-outline-primary\">
+                                                        <i class=\"bx bx-file\"></i> Voir
+                                                    </a>
+                                                @else
+                                                    <span class=\"text-muted\">Aucun fichier</span>
+                                                @endif
+                                            </td>";
+                        break;
+                    case "email":
+                        $td .= "
+                                            <td>
+                                                @if(\$record->$id)
+                                                    <a href=\"mailto:{{ \$record->$id }}\">{{ \$record->$id }}</a>
+                                                @endif
+                                            </td>";
+                        break;
+                    case "url":
+                        $td .= "
+                                            <td>
+                                                @if(\$record->$id)
+                                                    <a href=\"{{ \$record->$id }}\" target=\"_blank\" class=\"text-decoration-none\">
+                                                        {{ Str::limit(\$record->$id, 30) }}
+                                                        <i class=\"bx bx-link-external ms-1\"></i>
+                                                    </a>
+                                                @endif
+                                            </td>";
+                        break;
+                    case "colorpicker":
+                        $td .= "
+                                            <td>
+                                                @if(\$record->$id)
+                                                    <div class=\"d-flex align-items-center\">
+                                                        <div style=\"width: 20px; height: 20px; background-color: {{ \$record->$id }}; border: 1px solid #ddd; border-radius: 3px; margin-right: 8px;\"></div>
+                                                        {{ \$record->$id }}
+                                                    </div>
+                                                @endif
+                                            </td>";
+                        break;
+                    case "datepicker":
+                        $td .= "
+                                            <td>
+                                                {{ \$record->$id ? \Carbon\Carbon::parse(\$record->$id)->format('d/m/Y') : '' }}
+                                            </td>";
+                        break;
+                    case "timepicker":
+                        $td .= "
+                        <td>
+                                {{ \$record->$id ? \Carbon\Carbon::parse(\$record->$id)->format('H:i') : '' }}
+                        </td>";
+                        break;
+                    case "select_multiple":
+                    case "select_multiple_basic":
+                    case "checkbox":
+                        $td .= "
+                                            <td>
+                                                @if(\$record->$id && is_array(json_decode(\$record->$id, true)))
+                                                    <span class=\"badge bg-label-info\">{{ count(json_decode(\$record->$id, true)) }} élément(s)</span>
+                                                @endif
+                                            </td>";
+                        break;
+                    case "ckeditor":
+                    case "textarea":
+                        $td .= "
+                                            <td>
+                                                {{ Str::limit(strip_tags(\$record->$id), 50) }}
+                                            </td>";
+                        break;
+                    case "password":
+                        $td .= "
+                                            <td>
+                                                <span class=\"text-muted\">••••••••</span>
+                                            </td>";
+                        break;
+                    case "hidden":
+                        // Les champs cachés ne s'affichent pas dans la liste
                         break;
                     default:
                         $td .= "
@@ -210,6 +330,8 @@ class Quicky extends Model
 
     public static function genActions()
     {
+        // Normaliser les données POST
+        self::normalizePostData();
         if ($_POST["serverSide"] == 1) {
             $contenu = file_get_contents(base_path() . "/packages/easycollab/quicky/src/Templates/Actions.php");
             $contenu = str_replace('{projetId}', strtolower($_POST['projet']), $contenu);
@@ -225,6 +347,8 @@ class Quicky extends Model
 
     public static function genCreateView($isUpdate = false): void
     {
+        // Normaliser les données POST
+        self::normalizePostData();
         $project = strtolower($_POST['projet']);
         $viewPath = "views/back/$project/create.blade.php";
         $templatePath = base_path() . "/packages/easycollab/quicky/src/Templates/Create.php";
@@ -242,6 +366,8 @@ class Quicky extends Model
 
     public static function genUpdateView($isUpdate = false): void
     {
+        // Normaliser les données POST
+        self::normalizePostData();
         $project = strtolower($_POST['projet']);
         $viewPath = "views/back/$project/edit.blade.php";
         $templatePath = base_path() . "/packages/easycollab/quicky/src/Templates/Update.php";
@@ -260,6 +386,9 @@ class Quicky extends Model
 
     private static function generateFormTypes($isUpdate = false): string
     {
+        // Normaliser les données POST
+        self::normalizePostData();
+
         $formTypes = "";
         $project = strtolower($_POST['projet']);
         foreach ($_POST['Identifiant'] as $key => $value) {
@@ -270,9 +399,9 @@ class Quicky extends Model
                 $type = $_POST['formElement'][$key];
                 switch ($type) {
                     case "secondary_key":
-                        $skkey = $_POST['skkey'][$key];
-                        $skvalue = $_POST['skvalue'][$key];
-                        $recordVar = strtolower($_POST['skmodel'][$key]) . "Records";
+                        $skkey = isset($_POST['skkey'][$key]) ? $_POST['skkey'][$key] : 'id';
+                        $skvalue = isset($_POST['skvalue'][$key]) ? $_POST['skvalue'][$key] : 'name';
+                        $recordVar = strtolower(isset($_POST['skmodel'][$key]) ? $_POST['skmodel'][$key] : 'Model') . "Records";
                         $formTypes .= FormType::generateFormHtml($project, $label, $id, $columns, $type, $isUpdate, $recordVar, $skkey, $skvalue);
 
                         break;
@@ -280,14 +409,14 @@ class Quicky extends Model
                         if (isset($_POST['Select_valeur'][$key])) {
                             $select_radio_value = $_POST['Select_valeur'][$key];
                             $select_radio_key = $_POST['Select_cle'][$key];
-                            $formTypes .= FormType::generateFormHtml($project, $label, $id, $columns, $type, $isUpdate, null, null, null, $select_radio_key,$select_radio_value);
+                            $formTypes .= FormType::generateFormHtml($project, $label, $id, $columns, $type, $isUpdate, null, null, null, $select_radio_key, $select_radio_value);
                         }
                         break;
                     case "radio":
                         if (isset($_POST['Radio_valeur'][$key])) {
                             $select_radio_value = $_POST['Radio_valeur'][$key];
                             $select_radio_key = $_POST['Radio_cle'][$key];
-                            $formTypes .= FormType::generateFormHtml($project, $label, $id, $columns, $type, $isUpdate, null, null, null,$select_radio_key, $select_radio_value);
+                            $formTypes .= FormType::generateFormHtml($project, $label, $id, $columns, $type, $isUpdate, null, null, null, $select_radio_key, $select_radio_value);
                         }
                         break;
                     default:
@@ -311,6 +440,8 @@ class Quicky extends Model
 
     public static function genCreateViewOld()
     {
+        // Normaliser les données POST
+        self::normalizePostData();
 
         $formTypes = "";
         foreach ($_POST['Identifiant'] as $key => $value) {
@@ -324,9 +455,9 @@ class Quicky extends Model
                         break;
                     case "secondary_key":
 
-                        $skkey = $_POST['skkey'][$key];
-                        $skvalue = $_POST['skvalue'][$key];
-                        $recordVar = strtolower($_POST['skmodel'][$key]) . "Records";
+                        $skkey = isset($_POST['skkey'][$key]) ? $_POST['skkey'][$key] : 'id';
+                        $skvalue = isset($_POST['skvalue'][$key]) ? $_POST['skvalue'][$key] : 'name';
+                        $recordVar = strtolower(isset($_POST['skmodel'][$key]) ? $_POST['skmodel'][$key] : 'Model') . "Records";
 
                         $formTypes .= <<<FT
                         <div class="col-md-$columns">
@@ -354,9 +485,9 @@ class Quicky extends Model
                                     <option value=''></option>
                                 ";
                         if (isset($_POST['Select_valeur'][$key])) {
-                            foreach ($_POST['Select_valeur'][$key] as $cle => $valeur) {
-                                $option_cle = $_POST['Select_cle'][$key][$cle];
-                                $option_val = $_POST['Select_valeur'][$key][$cle];
+                            foreach ((array)(isset($_POST['Select_valeur'][$key]) ? $_POST['Select_valeur'][$key] : []) as $cle => $valeur) {
+                                $option_cle = isset($_POST['Select_cle'][$key][$cle]) ? $_POST['Select_cle'][$key][$cle] : '';
+                                $option_val = isset($_POST['Select_valeur'][$key][$cle]) ? $_POST['Select_valeur'][$key][$cle] : '';
                                 $formTypes .= "<option value=\"$option_cle\"> $option_val </option> \n";
                             }
                         }
@@ -369,12 +500,19 @@ class Quicky extends Model
                         break;
 
                     case "select_multiple":
-                        $formTypes .= FormType::getFormCreateHtml($label, $id, $columns, "phone");
+                        $formTypes .= FormType::getFormCreateHtml($label, $id, $columns, "select_multiple");
+                        break;
+                    case "select_basic":
+                        $formTypes .= FormType::getFormCreateHtml($label, $id, $columns, "select_basic");
+                        break;
+                    case "select_multiple_basic":
+                        $formTypes .= FormType::getFormCreateHtml($label, $id, $columns, "select_multiple_basic");
+                        break;
                     case "textarea":
                         $formTypes .= FormType::getFormCreateHtml($label, $id, $columns, "textarea");
                         break;
                     case "ckeditor":
-                        $formTypes .= FormType::getFormCreateHtml($label, $id, $columns, "phone");
+                        $formTypes .= FormType::getFormCreateHtml($label, $id, $columns, "ckeditor");
                         break;
                     case "radio":
                         $formTypes .= "
@@ -382,9 +520,9 @@ class Quicky extends Model
                                     <small class=\"text-light fw-medium\">$label</small>
                                 ";
                         if (isset($_POST['Radio_valeur'][$key])) {
-                            foreach ($_POST['Radio_valeur'][$key] as $cle => $valeur) {
-                                $option_cle = $_POST['Radio_cle'][$key][$cle];
-                                $option_val = $_POST['Radio_valeur'][$key][$cle];
+                            foreach ((array)(isset($_POST['Radio_valeur'][$key]) ? $_POST['Radio_valeur'][$key] : []) as $cle => $valeur) {
+                                $option_cle = isset($_POST['Radio_cle'][$key][$cle]) ? $_POST['Radio_cle'][$key][$cle] : '';
+                                $option_val = isset($_POST['Radio_valeur'][$key][$cle]) ? $_POST['Radio_valeur'][$key][$cle] : '';
                                 $formTypes .= <<<RADIO
                                             <div class="form-check">
                                                 <input name="$id" class="form-check-input" type="radio" value="$option_cle" id="radio_$cle">
@@ -418,6 +556,21 @@ class Quicky extends Model
                     case "phone":
                         $formTypes .= FormType::getFormCreateHtml($label, $id, $columns, 'phone');
                         break;
+                    case "email":
+                        $formTypes .= FormType::getFormCreateHtml($label, $id, $columns, 'email');
+                        break;
+                    case "number":
+                        $formTypes .= FormType::getFormCreateHtml($label, $id, $columns, 'number');
+                        break;
+                    case "password":
+                        $formTypes .= FormType::getFormCreateHtml($label, $id, $columns, 'password');
+                        break;
+                    case "url":
+                        $formTypes .= FormType::getFormCreateHtml($label, $id, $columns, 'url');
+                        break;
+                    case "hidden":
+                        $formTypes .= FormType::getFormCreateHtml($label, $id, $columns, 'hidden');
+                        break;
                     default:
                         $formTypes .= FormType::getFormCreateHtml($label, $id, $columns);
                         break;
@@ -443,6 +596,8 @@ class Quicky extends Model
 
     public static function genUpdateViewOld()
     {
+        // Normaliser les données POST
+        self::normalizePostData();
 
         $formTypes = "";
 
@@ -456,9 +611,9 @@ class Quicky extends Model
                     case "primary_key":
                         break;
                     case "secondary_key":
-                        $skkey = $_POST['skkey'][$key];
-                        $skvalue = $_POST['skvalue'][$key];
-                        $recordVar = strtolower($_POST['skmodel'][$key]) . "Records";
+                        $skkey = isset($_POST['skkey'][$key]) ? $_POST['skkey'][$key] : 'id';
+                        $skvalue = isset($_POST['skvalue'][$key]) ? $_POST['skvalue'][$key] : 'name';
+                        $recordVar = strtolower(isset($_POST['skmodel'][$key]) ? $_POST['skmodel'][$key] : 'Model') . "Records";
 
                         $formTypes .= <<<FT
                             <div class="col-md-$columns">
@@ -484,9 +639,9 @@ class Quicky extends Model
                                     <select name='$id' id='$id' class=\"select2 form-select form-select\" data-allow-clear=\"true\">
                                 ";
                         if (isset($_POST['Select_valeur'][$key])) {
-                            foreach ($_POST['Select_valeur'][$key] as $cle => $valeur) {
-                                $option_cle = $_POST['Select_cle'][$key][$cle];
-                                $option_val = $_POST['Select_valeur'][$key][$cle];
+                            foreach ((array)(isset($_POST['Select_valeur'][$key]) ? $_POST['Select_valeur'][$key] : []) as $cle => $valeur) {
+                                $option_cle = isset($_POST['Select_cle'][$key][$cle]) ? $_POST['Select_cle'][$key][$cle] : '';
+                                $option_val = isset($_POST['Select_valeur'][$key][$cle]) ? $_POST['Select_valeur'][$key][$cle] : '';
                                 $formTypes .= "<option value=\"$option_cle\" {{(\$record->$id == '$option_cle') ? 'selected' : ''}}> $option_val </option> \n";
                             }
                         }
@@ -500,12 +655,19 @@ class Quicky extends Model
                         break;
 
                     case "select_multiple":
-                        $formTypes .= FormType::getFormUpdateHtml($label, $id, $columns, "phone");
+                        $formTypes .= FormType::getFormUpdateHtml($label, $id, $columns, "select_multiple");
+                        break;
+                    case "select_basic":
+                        $formTypes .= FormType::getFormUpdateHtml($label, $id, $columns, "select_basic");
+                        break;
+                    case "select_multiple_basic":
+                        $formTypes .= FormType::getFormUpdateHtml($label, $id, $columns, "select_multiple_basic");
+                        break;
                     case "textarea":
                         $formTypes .= FormType::getFormUpdateHtml($label, $id, $columns, "textarea");
                         break;
                     case "ckeditor":
-                        $formTypes .= FormType::getFormUpdateHtml($label, $id, $columns, "phone");
+                        $formTypes .= FormType::getFormUpdateHtml($label, $id, $columns, "ckeditor");
                         break;
 
                     case "radio":
@@ -514,9 +676,9 @@ class Quicky extends Model
                                     <small class=\"text-light fw-medium\">$label</small>
                                 ";
                         if (isset($_POST['Radio_valeur'][$key])) {
-                            foreach ($_POST['Radio_valeur'][$key] as $cle => $valeur) {
-                                $option_cle = $_POST['Radio_cle'][$key][$cle];
-                                $option_val = $_POST['Radio_valeur'][$key][$cle];
+                            foreach ((array)(isset($_POST['Radio_valeur'][$key]) ? $_POST['Radio_valeur'][$key] : []) as $cle => $valeur) {
+                                $option_cle = isset($_POST['Radio_cle'][$key][$cle]) ? $_POST['Radio_cle'][$key][$cle] : '';
+                                $option_val = isset($_POST['Radio_valeur'][$key][$cle]) ? $_POST['Radio_valeur'][$key][$cle] : '';
                                 $formTypes .= <<<RADIO
                                             <div class="form-check">
                                                 <input name="$id" class="form-check-input" {{(\$record->$id == '$option_cle') ? 'checked' : ''}} type="radio" value="$option_cle" id="radio_$cle">
@@ -550,6 +712,21 @@ class Quicky extends Model
                     case "phone":
                         $formTypes .= FormType::getFormUpdateHtml($label, $id, $columns, 'phone');
                         break;
+                    case "email":
+                        $formTypes .= FormType::getFormUpdateHtml($label, $id, $columns, 'email');
+                        break;
+                    case "number":
+                        $formTypes .= FormType::getFormUpdateHtml($label, $id, $columns, 'number');
+                        break;
+                    case "password":
+                        $formTypes .= FormType::getFormUpdateHtml($label, $id, $columns, 'password');
+                        break;
+                    case "url":
+                        $formTypes .= FormType::getFormUpdateHtml($label, $id, $columns, 'url');
+                        break;
+                    case "hidden":
+                        $formTypes .= FormType::getFormUpdateHtml($label, $id, $columns, 'hidden');
+                        break;
                     default:
                         $formTypes .= FormType::getFormUpdateHtml($label, $id, $columns);
                         break;
@@ -571,6 +748,8 @@ class Quicky extends Model
 
     public static function addRoutes()
     {
+        // Normaliser les données POST
+        self::normalizePostData();
         $projetId = strtolower($_POST['projet']);
         $controller = ucfirst($_POST['projet']) . "Controller";
         $routes = "Route::resource('$projetId', '$controller')->except(['show']);";
@@ -586,6 +765,8 @@ class Quicky extends Model
 
     public static function genModelFile()
     {
+        // Normaliser les données POST
+        self::normalizePostData();
         $contenu = file_get_contents(base_path() . "/packages/easycollab/quicky/src/Templates/Model.php");
         $contenu = str_replace('{CLASS_NAME}', ucfirst(strtolower($_POST['projet'])), $contenu);
         $contenu = str_replace('{TABEL_NAME}', strtolower($_POST['projet']) . 's', $contenu);
@@ -593,21 +774,50 @@ class Quicky extends Model
         $serverSide = "";
         $relations = [];
         $columns = "";
+        $casts = [];
         $project = strtolower($_POST['projet']);
         foreach ($_POST['Identifiant'] as $key => $value) {
             if ($_POST['del'][$key] == 0) {
                 $id = $_POST['Identifiant'][$key];
                 $type = $_POST['formElement'][$key];
 
-                if ($type == 'secondary_key') {
-                    $model = strtolower($_POST['skmodel'][$key]);
-                    $ucModel = ucfirst(strtolower($_POST['skmodel'][$key]));
+                // Gestion des casts pour les différents types
+                switch ($type) {
+                    case 'select_multiple':
+                    case 'select_multiple_basic':
+                    case 'checkbox':
+                        $casts[] = "'$id' => 'array'";
+                        break;
+                    case 'datepicker':
+                        $casts[] = "'$id' => 'date'";
+                        break;
+                    case 'timepicker':
+                        $casts[] = "'$id' => 'datetime:H:i'";
+                        break;
+                    case 'number':
+                        $casts[] = "'$id' => 'integer'";
+                        break;
+                }
+
+                // Ajouter les colonnes DataTables seulement pour les champs visibles dans la grille
+                if (isset($_POST['inGrid'][$key]) && $_POST['inGrid'][$key] == 1 && $type != "primary_key" && $type != "hidden") {
+                    if ($type == 'secondary_key') {
+                        $model = strtolower(isset($_POST['skmodel'][$key]) ? $_POST['skmodel'][$key] : 'Model');
+                        $ucModel = ucfirst($model);
+                        $fkFunctions .= "\tpublic function {$model}Detail(){
+                return \$this->belongsTo(\App\Models\\$ucModel::class, '$id');
+            } \n";
+                        $relations[] = "'{$model}Detail'";
+                        $columns .= "->addColumn('$id', function (\$$project) {
+                        return \$$project->{$model}Detail->" . (isset($_POST['skvalue'][$key]) ? $_POST['skvalue'][$key] : 'name') . ";})\n";
+                    }
+                } elseif ($type == 'secondary_key') {
+                    // Ajouter la relation même si le champ n'est pas dans la grille
+                    $model = strtolower(isset($_POST['skmodel'][$key]) ? $_POST['skmodel'][$key] : 'Model');
+                    $ucModel = ucfirst($model);
                     $fkFunctions .= "\tpublic function {$model}Detail(){
-            return \$this->belongsTo(\App\Models\\$ucModel::class, '$id');
-        } \n";
-                    $relations[] = "'{$model}Detail'";
-                    $columns .= "->addColumn('$id', function (\$$project) {
-                    return \$$project->{$model}Detail->" . $_POST['skvalue'][$key] . ";})\n";
+                return \$this->belongsTo(\App\Models\\$ucModel::class, '$id');
+            } \n";
                 }
             }
         }
@@ -631,7 +841,9 @@ class Quicky extends Model
                     ->make(true);
             }";
         }
+        $castsString = !empty($casts) ? "\n\tprotected \$casts = [\n\t\t" . implode(",\n\t\t", $casts) . "\n\t];" : "";
         $contenu = str_replace('{FK}', $fkFunctions, $contenu);
+        $contenu = str_replace('{CASTS}', $castsString, $contenu);
         $contenu = str_replace('{serverSide}', $serverSide, $contenu);
 
 
@@ -642,32 +854,95 @@ class Quicky extends Model
 
     public static function genControllerFile()
     {
+        // Normaliser les données POST
+        self::normalizePostData();
         $contenu = file_get_contents(base_path() . "/packages/easycollab/quicky/src/Templates/Controller.php");
         $contenu = str_replace('{Model}', ucfirst(strtolower($_POST['projet'])), $contenu);
         $contenu = str_replace('{projetId}', strtolower($_POST['projet']), $contenu);
         $viewsData = "\n";
+        $validationRules = "";
+        $fileUploads = "";
         $serverSide = "";
         foreach ($_POST['Identifiant'] as $key => $value) {
             if ($_POST['del'][$key] == 0) {
                 $id = $_POST['Identifiant'][$key];
                 $type = $_POST['formElement'][$key];
+                $required = isset($_POST['visible'][$key]) && $_POST['visible'][$key] == 1 ? 'required|' : 'nullable|';
 
-                if ($type == 'secondary_key') {
-                    $model = strtolower($_POST['skmodel'][$key]);
-                    $ucModel = ucfirst(strtolower($_POST['skmodel'][$key]));
-                    $viewsData .= "\t\t\$viewsData['{$model}Records'] = \App\Models\\$ucModel::all()->where('deleted','0');\n";
+                // Génération des règles de validation selon le type
+                switch ($type) {
+                    case 'primary_key':
+                        // Pas de validation pour la clé primaire
+                        break;
+                    case 'secondary_key':
+                        // Vérifier que le modèle existe et n'est pas vide
+                        if (isset($_POST['skmodel'][$key]) && !empty($_POST['skmodel'][$key])) {
+                            $model = strtolower($_POST['skmodel'][$key]);
+                            $ucModel = ucfirst($model);
+                            $viewsData .= "\t\t\$viewsData['{$model}Records'] = \App\Models\\$ucModel::all()->where('deleted','0');\n";
+                            $validationRules .= "\t\t\t'$id' => '{$required}integer|exists:{$model}s,id',\n";
+                        }
+                        break;
+                    case 'email':
+                        $validationRules .= "\t\t\t'$id' => '{$required}email',\n";
+                        break;
+                    case 'number':
+                        $validationRules .= "\t\t\t'$id' => '{$required}numeric',\n";
+                        break;
+                    case 'url':
+                        $validationRules .= "\t\t\t'$id' => '{$required}url',\n";
+                        break;
+                    case 'phone':
+                        $validationRules .= "\t\t\t'$id' => '{$required}string|max:20',\n";
+                        break;
+                    case 'datepicker':
+                        $validationRules .= "\t\t\t'$id' => '{$required}date',\n";
+                        break;
+                    case 'file':
+                        $validationRules .= "\t\t\t'$id' => '{$required}file|max:10240',\n";
+                        $fileUploads .= "\t\t\tif (\$request->hasFile('$id')) {\n";
+                        $fileUploads .= "\t\t\t\t\$data['$id'] = \$request->file('$id')->store('uploads', 'public');\n";
+                        $fileUploads .= "\t\t\t}\n";
+                        break;
+                    case 'colorpicker':
+                        $validationRules .= "\t\t\t'$id' => '{$required}string|size:7|regex:/^#[a-fA-F0-9]{6}$/',\n";
+                        break;
+                    case 'select_multiple':
+                    case 'select_multiple_basic':
+                    case 'checkbox':
+                        // Pour les tableaux, si required, on doit avoir au moins 1 élément
+                        $arrayRule = $required === 'required|' ? 'required|array|min:1' : 'nullable|array';
+                        $validationRules .= "\t\t\t'$id' => '$arrayRule',\n";
+                        break;
+                    case 'password':
+                        $validationRules .= "\t\t\t'$id' => '{$required}string|min:8',\n";
+                        break;
+                    case 'text':
+                    case 'textarea':
+                    case 'ckeditor':
+                    case 'hidden':
+                    case 'select':
+                    case 'select_basic':
+                    case 'radio':
+                    default:
+                        $size = isset($_POST['size'][$key]) && !empty($_POST['size'][$key]) ? $_POST['size'][$key] : 255;
+                        $validationRules .= "\t\t\t'$id' => '{$required}string|max:$size',\n";
+                        break;
                 }
             }
         }
         if ($_POST["serverSide"] == 1) {
             $project = strtolower($_POST['projet']);
+            $modelName = ucfirst(strtolower($_POST['projet']));
             $serverSide = "public function data()
             {
-               return $project::getDataForDataTable();
+               return $modelName::getDataForDataTable();
             }";
         }
 
         $contenu = str_replace('{viewsData}', $viewsData, $contenu);
+        $contenu = str_replace('{validationRules}', $validationRules, $contenu);
+        $contenu = str_replace('{fileUploads}', $fileUploads, $contenu);
         $contenu = str_replace('{serverSide}', $serverSide, $contenu);
 
 
@@ -678,16 +953,65 @@ class Quicky extends Model
 
     public static function genMigrationFile($isUpdate = false)
     {
+        // Normaliser les données POST
+        self::normalizePostData();
         $columns = "";
         foreach ($_POST['Identifiant'] as $key => $value) {
             if ($_POST['del'][$key] == 0) {
                 $id = $_POST['Identifiant'][$key];
                 $type = $_POST['formElement'][$key];
                 switch ($type) {
+                    case "primary_key":
+                        // Déjà géré par bigIncrements('id') dans le template
+                        break;
+                    case "secondary_key":
+                        $columns .= "\t\t\t\$table->unsignedBigInteger('$id')->nullable(true);\n";
+                        break;
                     case "ckeditor":
                     case "textarea":
                         $columns .= "\t\t\t\$table->longText('$id')->nullable(true);\n";
                         break;
+                    case "number":
+                        $columns .= "\t\t\t\$table->integer('$id')->nullable(true);\n";
+                        break;
+                    case "email":
+                        $columns .= "\t\t\t\$table->string('$id')->nullable(true);\n";
+                        break;
+                    case "password":
+                        $columns .= "\t\t\t\$table->string('$id')->nullable(true);\n";
+                        break;
+                    case "url":
+                        $columns .= "\t\t\t\$table->text('$id')->nullable(true);\n";
+                        break;
+                    case "phone":
+                        $columns .= "\t\t\t\$table->string('$id', 20)->nullable(true);\n";
+                        break;
+                    case "datepicker":
+                        $columns .= "\t\t\t\$table->date('$id')->nullable(true);\n";
+                        break;
+                    case "timepicker":
+                        $columns .= "\t\t\t\$table->time('$id')->nullable(true);\n";
+                        break;
+                    case "colorpicker":
+                        $columns .= "\t\t\t\$table->string('$id', 7)->nullable(true);\n";
+                        break;
+                    case "file":
+                        $columns .= "\t\t\t\$table->string('$id')->nullable(true);\n";
+                        break;
+                    case "hidden":
+                        $columns .= "\t\t\t\$table->string('$id')->nullable(true);\n";
+                        break;
+                    case "select":
+                    case "select_basic":
+                    case "radio":
+                        $columns .= "\t\t\t\$table->string('$id')->nullable(true);\n";
+                        break;
+                    case "select_multiple":
+                    case "select_multiple_basic":
+                    case "checkbox":
+                        $columns .= "\t\t\t\$table->json('$id')->nullable(true);\n";
+                        break;
+                    case "text":
                     default:
                         $columns .= "\t\t\t\$table->string('$id')->nullable(true);\n";
                         break;

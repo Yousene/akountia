@@ -27,6 +27,10 @@
     <link rel="stylesheet" href="/assets/vendor/fonts/boxicons.css" />
     <link rel="stylesheet" href="/assets/vendor/fonts/fontawesome.css" />
     <link rel="stylesheet" href="/assets/vendor/fonts/flag-icons.css" />
+    <!-- Font Awesome 6.5.0 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <!-- Core CSS -->
     <link rel="stylesheet" href="/assets/vendor/css/rtl/core.css" class="template-customizer-core-css" />
@@ -38,6 +42,8 @@
     <link rel="stylesheet" href="/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
     <link rel="stylesheet" href="/assets/vendor/libs/typeahead-js/typeahead.css" />
     <link rel="stylesheet" href="/assets/vendor/libs/plyr/plyr.css" />
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
     <!-- Page CSS -->
     @yield('css')
@@ -84,34 +90,34 @@
                         @php($subMenus = $menu->getSubMenus($menu->id))
                         @if (!is_numeric($menu->parent_menu))
                             @if ($subMenus->count() == 0)
-                                @if ($menu->ressource == '' || \Auth::user()::hasRessource($menu->ressource_name))
+                                @if ($menu->ressource == '' || (auth()->check() && \Auth::user()::hasRessource($menu->ressource_name)))
                                     <li
                                         class="menu-item {{ in_array(Route::currentRouteName(), [$menu->page]) ? 'active open' : '' }}">
                                         <a href="{{ route($menu->page ?? 'admin') }}" class="menu-link">
-                                            <i class="menu-icon tf-icons bx bx-{{ $menu->icon }}"></i>
+                                            <i class="menu-icon tf-icons fa-solid fa-{{ $menu->icon }}"></i>
                                             <div class="text-truncate" data-i18n="{{ $menu->titre }}">
                                                 {{ $menu->titre }}</div>
                                         </a>
                                     </li>
                                 @endif
                             @else
-                                @if ($menu->ressource == '' || \Auth::user()::hasRessource($menu->ressource_name))
+                                @if ($menu->ressource == '' || (auth()->check() && \Auth::user()::hasRessource($menu->ressource_name)))
                                     <li
                                         class="menu-item {{ in_array(Route::currentRouteName(), collect($subMenus)->pluck('page')->toArray()) ? 'active open' : '' }}">
                                         <a href="javascript:void(0);" class="menu-link menu-toggle">
-                                            <i class="menu-icon tf-icons bx bx-{{ $menu->icon }}"></i>
+                                            <i class="menu-icon tf-icons fa-solid fa-{{ $menu->icon }}"></i>
                                             <div class="text-truncate" data-i18n="{{ $menu->titre }}">
                                                 {{ $menu->titre }}</div>
                                         </a>
                                         <ul class="menu-sub">
                                             @foreach ($subMenus as $subMenu)
-                                                @if ($subMenu->ressource == '' || \Auth::user()::hasRessource($subMenu->ressource_name))
+                                                @if ($subMenu->ressource == '' || (auth()->check() && \Auth::user()::hasRessource($subMenu->ressource_name)))
                                                     <li
                                                         class="menu-item {{ in_array(Route::currentRouteName(), [$subMenu->page]) ? 'active' : '' }}">
                                                         <a href="{{ route($subMenu->page ?? 'admin') }}"
                                                             class="menu-link">
                                                             <i
-                                                                class="menu-icon tf-icons bx bx-{{ $subMenu->icon }}"></i>
+                                                                class="menu-icon tf-icons fa-solid fa-{{ $subMenu->icon }}"></i>
                                                             <div class="text-truncate"
                                                                 data-i18n="{{ $subMenu->titre }}">
                                                                 {{ $subMenu->titre }}</div>
@@ -328,7 +334,7 @@
                                                 <div class="d-flex">
                                                     <div class="flex-shrink-0 me-3">
                                                         <div class="avatar">
-                                                            <img src="{{ Auth::user()->photo ? '/uploads/photos/' . Auth::user()->photo : '/uploads/photos/default.png' }}"
+                                                            <img src="{{ auth()->check() && Auth::user()->photo ? '/uploads/photos/' . Auth::user()->photo : '/uploads/photos/default.png' }}"
                                                                 alt class="w-px-40 h-auto rounded-circle" />
                                                         </div>
                                                     </div>
@@ -559,7 +565,7 @@
                                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);"
                                     data-bs-toggle="dropdown">
                                     <div class="avatar avatar-online">
-                                        <img src="{{ Auth::user()->photo ? '/uploads/photos/' . Auth::user()->photo : '/uploads/photos/default.png' }}"
+                                        <img src="{{ auth()->check() && Auth::user()->photo ? '/uploads/photos/' . Auth::user()->photo : '/uploads/photos/default.png' }}"
                                             alt class="w-px-40 h-auto rounded-circle" />
                                     </div>
                                 </a>
@@ -569,14 +575,14 @@
                                             <div class="d-flex">
                                                 <div class="flex-shrink-0 me-3">
                                                     <div class="avatar avatar-online">
-                                                        <img src="{{ Auth::user()->photo ? '/uploads/photos/' . Auth::user()->photo : '/uploads/photos/default.png' }}"
+                                                        <img src="{{ auth()->check() && Auth::user()->photo ? '/uploads/photos/' . Auth::user()->photo : '/uploads/photos/default.png' }}"
                                                             alt class="w-px-40 h-auto rounded-circle" />
                                                     </div>
                                                 </div>
                                                 <div class="flex-grow-1">
                                                     <span
-                                                        class="fw-medium d-block">{{ Auth::user()->name ? Auth::user()->name : '' }}
-                                                        {{ Auth::user()->first_name ? Auth::user()->first_name : '' }}</span>
+                                                        class="fw-medium d-block">{{ auth()->check() && Auth::user()->name ? Auth::user()->name : '' }}
+                                                        {{ auth()->check() && Auth::user()->first_name ? Auth::user()->first_name : '' }}</span>
                                                     <small class="text-muted">Admin</small>
                                                 </div>
                                             </div>
@@ -719,6 +725,12 @@
 
     <!-- Vendors JS -->
     <script src="/assets/vendor/libs/apex-charts/apexcharts.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- CKEditor (Latest LTS Version) -->
+    {{-- <script src="https://cdn.ckeditor.com/4.25.1-lts/standard/ckeditor.js"></script> --}}
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 
     <!-- Main JS -->
     <script src="/assets/js/main.js"></script>
@@ -740,6 +752,73 @@
             }
             return routes[name] || '';
         };
+
+        // Initialisation automatique de CKEditor pour tous les textarea.ckeditor
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof CKEDITOR !== 'undefined') {
+                // Remplacer tous les textarea avec la classe 'ckeditor'
+                document.querySelectorAll('textarea.ckeditor').forEach(function(textarea) {
+                    if (!CKEDITOR.instances[textarea.id]) {
+                        CKEDITOR.replace(textarea.id, {
+                            height: 300,
+                            toolbar: [{
+                                    name: 'document',
+                                    items: ['Source', '-', 'Save', 'NewPage', 'Preview',
+                                        'Print'
+                                    ]
+                                },
+                                {
+                                    name: 'clipboard',
+                                    items: ['Cut', 'Copy', 'Paste', 'PasteText',
+                                        'PasteFromWord', '-', 'Undo', 'Redo'
+                                    ]
+                                },
+                                {
+                                    name: 'editing',
+                                    items: ['Find', 'Replace', '-', 'SelectAll']
+                                },
+                                '/',
+                                {
+                                    name: 'basicstyles',
+                                    items: ['Bold', 'Italic', 'Underline', 'Strike',
+                                        'Subscript', 'Superscript', '-', 'RemoveFormat'
+                                    ]
+                                },
+                                {
+                                    name: 'paragraph',
+                                    items: ['NumberedList', 'BulletedList', '-', 'Outdent',
+                                        'Indent', '-', 'Blockquote', 'CreateDiv', '-',
+                                        'JustifyLeft', 'JustifyCenter', 'JustifyRight',
+                                        'JustifyBlock'
+                                    ]
+                                },
+                                {
+                                    name: 'links',
+                                    items: ['Link', 'Unlink', 'Anchor']
+                                },
+                                {
+                                    name: 'insert',
+                                    items: ['Image', 'Table', 'HorizontalRule', 'SpecialChar']
+                                },
+                                '/',
+                                {
+                                    name: 'styles',
+                                    items: ['Styles', 'Format', 'Font', 'FontSize']
+                                },
+                                {
+                                    name: 'colors',
+                                    items: ['TextColor', 'BGColor']
+                                },
+                                {
+                                    name: 'tools',
+                                    items: ['Maximize', 'ShowBlocks']
+                                }
+                            ]
+                        });
+                    }
+                });
+            }
+        });
     </script>
     @yield('js')
 </body>

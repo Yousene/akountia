@@ -17,10 +17,11 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\PublicReviewController;
 use App\Http\Controllers\CertificateController;
 
-
 Auth::routes();
 
-// Quicky Routes
+// Quicky Generator Routes
+Route::any('/quicky', 'QuickyController@index')->name('quicky')->middleware('check-perm');
+Route::get('/check-project/{projectName}', 'QuickyController@checkProject')->name('quicky.check.project');
 
 Route::any('/admin', 'AdminController@index')->name('admin.admin')->middleware('check-perm');
 
@@ -89,41 +90,11 @@ Route::get('searchbar/data', [SearchController::class, 'getSearchData'])->name('
 
 
 
-// category
-Route::resource('category', 'CategoryController')->except(['show']);
-Route::get('category/data', 'CategoryController@data')->name('category.data');
-
-// course
-Route::resource('course', 'CourseController')->except(['show']);
-Route::get('course/data', 'CourseController@data')->name('course.data');
+// tester12
+Route::resource('tester12', 'Tester12Controller')->except(['show']);
+Route::get('tester12/data', 'Tester12Controller@data')->name('tester12.data');
 
 
-
-
-
-// client
-Route::resource('client', 'ClientController')->except(['show']);
-Route::get('client/data', 'ClientController@data')->name('client.data');
-
-// contact
-Route::resource('contact', 'ContactController')->except(['show']);
-Route::get('contact/data', 'ContactController@data')->name('contact.data');
-
-// statut
-Route::resource('statut', 'StatutController')->except(['show']);
-Route::get('statut/data', 'StatutController@data')->name('statut.data');
-
-// lead
-Route::resource('lead', 'LeadController')->except(['show']);
-Route::get('lead/data', 'LeadController@data')->name('lead.data');
-
-// review
-Route::resource('review', 'ReviewController')->except(['show']);
-Route::get('review/data', 'ReviewController@data')->name('review.data');
-
-// Routes pour les avis publics
-Route::get('/avis/nouveau', [PublicReviewController::class, 'create'])->name('public.review.create');
-Route::post('/avis/enregistrer', [PublicReviewController::class, 'store'])->name('public.review.store');
-
-// Routes pour les certificats
-Route::get('/certificate', 'CertificateController@index')->name('certificate.index');
+// tester123
+Route::resource('tester123', 'Tester123Controller')->except(['show']);
+Route::get('tester123/data', 'Tester123Controller@data')->name('tester123.data');

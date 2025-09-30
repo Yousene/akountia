@@ -8,6 +8,31 @@
 @stop
 @section('content')
 <div class="container-fluid flex-grow-1 container-p-y">
+    <!-- Messages d'alerte -->
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bx bx-check-circle me-2"></i>
+            <strong>Succès !</strong> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bx bx-error-circle me-2"></i>
+            <strong>Erreur !</strong> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if(session('warning'))
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="bx bx-error me-2"></i>
+            <strong>Attention !</strong> {{ session('warning') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
         <div class="d-flex flex-column justify-content-center">
             <h4 class="py-3 mb-4">Gestion des {projetId}s</h4>
@@ -88,16 +113,61 @@
             },
             success: function(result) {
                 if (result.success) {
-                    alert(result.message);
-                    window.location.replace("/{projetId}");
+                    // Fermer la modal
+                    $('#modalCenter').modal('hide');
+                    
+                    // Afficher notification de succès
+                    showNotification(result.message, 'success');
+                    
+                    // Actualiser le tableau après 1 seconde
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1000);
                 } else {
-                    alert("Erreur lors de la suppression!");
+                    showNotification(result.message || "Erreur lors de la suppression!", 'error');
                 }
             },
             error: function(xhr, status, error) {
                 console.error(error);
+                let errorMessage = "Une erreur est survenue lors de la suppression.";
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                showNotification(errorMessage, 'error');
             }
         });
+    }
+
+    // Fonction pour afficher les notifications
+    function showNotification(message, type = 'info') {
+        // Supprimer les notifications existantes
+        document.querySelectorAll('.toast-notification').forEach(toast => toast.remove());
+        
+        // Créer la notification
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} alert-dismissible fade show toast-notification`;
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.zIndex = '9999';
+        notification.style.minWidth = '300px';
+        
+        const icon = type === 'success' ? 'bx-check-circle' : type === 'error' ? 'bx-error-circle' : 'bx-info-circle';
+        
+        notification.innerHTML = `
+            <i class="bx ${icon} me-2"></i>
+            <strong>${type === 'success' ? 'Succès!' : type === 'error' ? 'Erreur!' : 'Info!'}</strong> ${message}
+            <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Supprimer automatiquement après 4 secondes
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 4000);
     }
 
     {serverSide}

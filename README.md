@@ -1,6 +1,6 @@
-# Laravel Project: Afrique Academy
+# Akountia
 
-Ce projet est une application basée sur Laravel.
+Akountia est une application moderne de gestion comptable basée sur Laravel.
 
 ## Prérequis
 
@@ -12,13 +12,13 @@ Ce projet est une application basée sur Laravel.
 1. Clonez le dépôt :
 
    ```bash
-   git clone https://github.com/Yousene/afriqueacademy afriqueacademy
+   git clone https://github.com/Yousene/akountia akountia
    ```
 
 2. Accédez au répertoire du projet :
 
    ```bash
-   cd afriqueacademy
+   cd akountia
    ```
 
 3. Modifiez le fichier `.env.example` selon vos besoins :

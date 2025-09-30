@@ -68,7 +68,7 @@ TemplateCustomizer.THEMES.push({
 });
 TemplateCustomizer.THEMES.push({
     name: 'theme-afrique-academy',
-    title: 'Afrique Academy'
+    title: 'Akountia'
 });
 // To add more languages, just push it to LANGUAGES object.
 /*
