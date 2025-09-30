@@ -493,8 +493,11 @@
                                         <div class="form-text">
                                             <strong>Types supportés:</strong> text, email, number, password, url, phone,
                                             textarea, ckeditor,
-                                            select, radio, checkbox, datepicker, timepicker, colorpicker, file, hidden,
-                                            primary_key, secondary_key
+                                            select, radio, checkbox, datepicker, timepicker, colorpicker, file, multi_file,
+                                            hidden,
+                                            primary_key, secondary_key<br>
+                                            <strong>Clés étrangères:</strong> Sélectionnez une table existante, puis
+                                            choisissez la colonne clé et la colonne d'affichage
                                         </div>
                                     </div>
                                     <div class="col-md-12">
@@ -634,6 +637,7 @@
                         <option value="timepicker">Heure</option>
                         <option value="colorpicker">Couleur</option>
                         <option value="file">Fichier</option>
+                        <option value="multi_file">Multi-fichiers</option>
                         <option value="phone">Téléphone</option>
                         <option value="email">Email</option>
                         <option value="number">Nombre</option>
@@ -734,30 +738,42 @@
             <h6 class="text-primary mb-3">Configuration de la clé étrangère</h6>
             <div class="row g-3">
                 <div class="col-md-4">
-                    <label class="form-label">Modèle</label>
-                    <input type="text"
-                           name="skmodel[]"
-                           class="form-control"
-                           placeholder="Ex: User, Category...">
+                    <label class="form-label">Table</label>
+                    <select name="skmodel[]"
+                            class="form-select foreign-key-table"
+                            data-field-index="${fieldIndex}"
+                            onchange="loadTableColumns(this, ${fieldIndex})">
+                        <option value="">Sélectionner une table...</option>
+                    </select>
+                    <div class="form-text">Table existante dans la base de données</div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Clé</label>
-                    <input type="text"
-                           name="skkey[]"
-                           class="form-control"
-                           placeholder="Ex: id">
+                    <select name="skkey[]"
+                            class="form-select foreign-key-column"
+                            data-field-index="${fieldIndex}"
+                            disabled>
+                        <option value="id">id (par défaut)</option>
+                    </select>
+                    <div class="form-text">Colonne utilisée comme clé</div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Valeur affichée</label>
-                    <input type="text"
-                           name="skvalue[]"
-                           class="form-control"
-                           placeholder="Ex: name, title...">
+                    <select name="skvalue[]"
+                            class="form-select foreign-key-display"
+                            data-field-index="${fieldIndex}"
+                            disabled>
+                        <option value="">Sélectionner une colonne...</option>
+                    </select>
+                    <div class="form-text">Colonne affichée dans la liste</div>
                 </div>
             </div>
         </div>
     `;
             container.style.display = 'block';
+
+            // Charger les tables disponibles
+            loadAvailableTables(fieldIndex);
         }
 
         /**
@@ -1114,13 +1130,28 @@
         function addFieldForeignKeyFromJSON(fieldIndex, foreignKey) {
             const container = document.getElementById(`type-options-${fieldIndex}`);
             if (container && foreignKey) {
-                const modelInput = container.querySelector('input[name="skmodel[]"]');
-                const keyInput = container.querySelector('input[name="skkey[]"]');
-                const valueInput = container.querySelector('input[name="skvalue[]"]');
+                const modelSelect = container.querySelector('select[name="skmodel[]"]');
+                const keySelect = container.querySelector('select[name="skkey[]"]');
+                const valueSelect = container.querySelector('select[name="skvalue[]"]');
 
-                if (modelInput && foreignKey.model) modelInput.value = foreignKey.model;
-                if (keyInput && foreignKey.key) keyInput.value = foreignKey.key;
-                if (valueInput && foreignKey.value) valueInput.value = foreignKey.value;
+                // Attendre que les tables soient chargées
+                setTimeout(() => {
+                    if (modelSelect && foreignKey.model) {
+                        modelSelect.value = foreignKey.model;
+                        // Déclencher le chargement des colonnes
+                        loadTableColumns(modelSelect, fieldIndex);
+
+                        // Attendre que les colonnes soient chargées pour définir les valeurs
+                        setTimeout(() => {
+                            if (keySelect && foreignKey.key) {
+                                keySelect.value = foreignKey.key;
+                            }
+                            if (valueSelect && foreignKey.value) {
+                                valueSelect.value = foreignKey.value;
+                            }
+                        }, 1000);
+                    }
+                }, 500);
             }
         }
 
@@ -1157,15 +1188,15 @@
             const optionsContainer = container.querySelector(`#type-options-${container.getAttribute('data-field-index')}`);
 
             if (optionsContainer) {
-                const modelInput = optionsContainer.querySelector('input[name="skmodel[]"]');
-                const keyInput = optionsContainer.querySelector('input[name="skkey[]"]');
-                const valueInput = optionsContainer.querySelector('input[name="skvalue[]"]');
+                const modelSelect = optionsContainer.querySelector('select[name="skmodel[]"]');
+                const keySelect = optionsContainer.querySelector('select[name="skkey[]"]');
+                const valueSelect = optionsContainer.querySelector('select[name="skvalue[]"]');
 
-                if (modelInput?.value || keyInput?.value || valueInput?.value) {
+                if (modelSelect?.value || keySelect?.value || valueSelect?.value) {
                     return {
-                        model: modelInput?.value || '',
-                        key: keyInput?.value || 'id',
-                        value: valueInput?.value || ''
+                        model: modelSelect?.value || '',
+                        key: keySelect?.value || 'id',
+                        value: valueSelect?.value || ''
                     };
                 }
             }
@@ -1216,12 +1247,12 @@
                     if (type === 'secondary_key') {
                         const fieldIndex = field.getAttribute('data-field-index');
                         const optionsContainer = document.getElementById(`type-options-${fieldIndex}`);
-                        const skmodel = optionsContainer?.querySelector('input[name="skmodel[]"]')?.value?.trim();
+                        const skmodel = optionsContainer?.querySelector('select[name="skmodel[]"]')?.value?.trim();
 
                         if (!skmodel || skmodel === '') {
                             alert(
-                                `Le champ "${label}" de type "Clé étrangère" doit avoir un modèle défini (Model).`
-                                );
+                                `Le champ "${label}" de type "Clé étrangère" doit avoir une table sélectionnée.`
+                            );
                             hasError = true;
                             return;
                         }
@@ -1274,6 +1305,108 @@
                 alert('Une erreur est survenue lors de la préparation du formulaire.');
                 return false;
             }
+        }
+
+        /**
+         * Charge les tables disponibles depuis la base de données
+         */
+        function loadAvailableTables(fieldIndex) {
+            const tableSelect = document.querySelector(`select[data-field-index="${fieldIndex}"].foreign-key-table`);
+
+            if (!tableSelect) return;
+
+            // Afficher un indicateur de chargement
+            tableSelect.innerHTML = '<option value="">Chargement des tables...</option>';
+            tableSelect.disabled = true;
+
+            fetch('{{ route('quicky.tables') }}')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        tableSelect.innerHTML = '<option value="">Sélectionner une table...</option>';
+
+                        data.tables.forEach(table => {
+                            const option = document.createElement('option');
+                            option.value = table;
+                            option.textContent = table;
+                            tableSelect.appendChild(option);
+                        });
+
+                        tableSelect.disabled = false;
+                    } else {
+                        tableSelect.innerHTML = '<option value="">Erreur lors du chargement</option>';
+                        showNotification('Erreur lors du chargement des tables: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    tableSelect.innerHTML = '<option value="">Erreur de connexion</option>';
+                    showNotification('Erreur de connexion lors du chargement des tables', 'error');
+                });
+        }
+
+        /**
+         * Charge les colonnes d'une table sélectionnée
+         */
+        function loadTableColumns(tableSelect, fieldIndex) {
+            const selectedTable = tableSelect.value;
+            const columnSelect = document.querySelector(`select[data-field-index="${fieldIndex}"].foreign-key-column`);
+            const displaySelect = document.querySelector(`select[data-field-index="${fieldIndex}"].foreign-key-display`);
+
+            if (!selectedTable) {
+                // Réinitialiser les sélecteurs
+                columnSelect.innerHTML = '<option value="id">id (par défaut)</option>';
+                displaySelect.innerHTML = '<option value="">Sélectionner une colonne...</option>';
+                columnSelect.disabled = true;
+                displaySelect.disabled = true;
+                return;
+            }
+
+            // Afficher un indicateur de chargement
+            columnSelect.innerHTML = '<option value="">Chargement des colonnes...</option>';
+            displaySelect.innerHTML = '<option value="">Chargement des colonnes...</option>';
+            columnSelect.disabled = true;
+            displaySelect.disabled = true;
+
+            fetch(`{{ route('quicky.table.columns', ':table') }}`.replace(':table', selectedTable))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remplir le sélecteur de clé
+                        columnSelect.innerHTML = '';
+                        data.columns.forEach(column => {
+                            const option = document.createElement('option');
+                            option.value = column.name;
+                            option.textContent = `${column.name} (${column.type})`;
+                            if (column.key === 'PRI') {
+                                option.selected = true; // Sélectionner la clé primaire par défaut
+                            }
+                            columnSelect.appendChild(option);
+                        });
+
+                        // Remplir le sélecteur d'affichage
+                        displaySelect.innerHTML = '<option value="">Sélectionner une colonne...</option>';
+                        data.columns.forEach(column => {
+                            const option = document.createElement('option');
+                            option.value = column.name;
+                            option.textContent = `${column.name} (${column.type})`;
+                            displaySelect.appendChild(option);
+                        });
+
+                        columnSelect.disabled = false;
+                        displaySelect.disabled = false;
+                    } else {
+                        columnSelect.innerHTML = '<option value="">Erreur lors du chargement</option>';
+                        displaySelect.innerHTML = '<option value="">Erreur lors du chargement</option>';
+                        showNotification('Erreur lors du chargement des colonnes: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    columnSelect.innerHTML = '<option value="">Erreur de connexion</option>';
+                    displaySelect.innerHTML = '<option value="">Erreur de connexion</option>';
+                    showNotification('Erreur de connexion lors du chargement des colonnes', 'error');
+                });
         }
 
         /**

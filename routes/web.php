@@ -22,6 +22,8 @@ Auth::routes();
 // Quicky Generator Routes
 Route::any('/quicky', 'QuickyController@index')->name('quicky')->middleware('check-perm');
 Route::get('/check-project/{projectName}', 'QuickyController@checkProject')->name('quicky.check.project');
+Route::get('/quicky/tables', 'QuickyController@getTables')->name('quicky.tables')->middleware('check-perm');
+Route::get('/quicky/table-columns/{tableName}', 'QuickyController@getTableColumns')->name('quicky.table.columns')->middleware('check-perm');
 
 Route::any('/admin', 'AdminController@index')->name('admin.admin')->middleware('check-perm');
 
@@ -87,14 +89,3 @@ Route::get('company/data', 'CompanyController@data')->name('company.data');
 Route::get('searchbar/data', [SearchController::class, 'getSearchData'])->name('search.data');
 
 // Generated Routes
-
-
-
-// tester12
-Route::resource('tester12', 'Tester12Controller')->except(['show']);
-Route::get('tester12/data', 'Tester12Controller@data')->name('tester12.data');
-
-
-// tester123
-Route::resource('tester123', 'Tester123Controller')->except(['show']);
-Route::get('tester123/data', 'Tester123Controller@data')->name('tester123.data');

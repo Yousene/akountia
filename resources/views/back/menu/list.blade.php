@@ -402,6 +402,112 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
+
+        /* Styles pour les notifications toast */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+        }
+
+        .toast-notification {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease-in-out;
+            border-left: 4px solid #007bff;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            position: relative;
+        }
+
+        .toast-icon {
+            font-size: 20px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .toast-message {
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #333;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 12px;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .toast-close:hover {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        /* Types de notifications */
+        .toast-success {
+            border-left-color: #28a745;
+        }
+
+        .toast-success .toast-icon {
+            color: #28a745;
+        }
+
+        .toast-error {
+            border-left-color: #dc3545;
+        }
+
+        .toast-error .toast-icon {
+            color: #dc3545;
+        }
+
+        .toast-warning {
+            border-left-color: #ffc107;
+        }
+
+        .toast-warning .toast-icon {
+            color: #ffc107;
+        }
+
+        .toast-info {
+            border-left-color: #17a2b8;
+        }
+
+        .toast-info .toast-icon {
+            color: #17a2b8;
+        }
+
+        /* Animation de fermeture */
+        .toast-notification.closing {
+            opacity: 0;
+            transform: translateX(100%);
+        }
     </style>
     <!-- Script JavaScript corrigé pour le modal d'édition -->
     <script>
@@ -672,13 +778,57 @@
         }
 
         function showNotification(message, type = 'info') {
-            // Si vous utilisez un système de notification (toastr, sweetalert, etc.)
-            if (typeof toastr !== 'undefined') {
-                toastr[type](message);
-            } else {
-                // Fallback avec alert
-                alert(message);
+            // Créer un élément de notification toast
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="toast-icon ${getIconClass(type)}"></i>
+                    <span class="toast-message">${message}</span>
+                    <button class="toast-close" onclick="closeToast(this)">&times;</button>
+                </div>
+            `;
+
+            // Ajouter au conteneur de notifications
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
             }
+
+            container.appendChild(toast);
+
+            // Animation d'apparition
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+
+            // Auto-fermeture après 5 secondes
+            setTimeout(() => {
+                closeToast(toast.querySelector('.toast-close'));
+            }, 5000);
+        }
+
+        function getIconClass(type) {
+            const icons = {
+                'success': 'bx-check-circle',
+                'error': 'bx-error-circle',
+                'warning': 'bx-error',
+                'info': 'bx-info-circle'
+            };
+            return icons[type] || icons['info'];
+        }
+
+        function closeToast(button) {
+            const toast = button.closest('.toast-notification');
+            toast.classList.remove('show');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 300);
         }
 
         // Configuration Sortable

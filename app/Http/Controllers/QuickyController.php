@@ -140,7 +140,7 @@ class QuickyController extends Controller
             'Label' => 'required|array',
             'Label.*' => 'required|string|max:255',
             'formElement' => 'required|array',
-            'formElement.*' => 'required|string|in:primary_key,secondary_key,text,email,number,password,url,phone,textarea,ckeditor,select,select_basic,select_multiple,select_multiple_basic,radio,checkbox,datepicker,timepicker,colorpicker,file,hidden',
+            'formElement.*' => 'required|string|in:primary_key,secondary_key,text,email,number,password,url,phone,textarea,ckeditor,select,select_basic,select_multiple,select_multiple_basic,radio,checkbox,datepicker,timepicker,colorpicker,file,multi_file,hidden',
             'Select_cle.*' => 'nullable|array',
             'Select_valeur.*' => 'nullable|array',
             'Radio_cle.*' => 'nullable|array',
@@ -391,6 +391,93 @@ class QuickyController extends Controller
         } catch (\Exception $e) {
             \Log::error('Erreur lors des migrations: ' . $e->getMessage());
             throw new \Exception('Erreur lors des migrations: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Récupère la liste des tables existantes dans la base de données
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getTables()
+    {
+        try {
+            $tables = \DB::select('SHOW TABLES');
+            $tableNames = [];
+
+            // Extraire les noms de tables (la clé varie selon le driver de base de données)
+            foreach ($tables as $table) {
+                $tableArray = (array) $table;
+                $tableNames[] = array_values($tableArray)[0];
+            }
+
+            // Filtrer les tables système et ne garder que les tables métier
+            $filteredTables = array_filter($tableNames, function ($table) {
+                return !in_array($table, [
+                    'migrations', 'password_resets', 'failed_jobs',
+                    'personal_access_tokens', 'sessions', 'cache',
+                    'cache_locks', 'jobs', 'job_batches'
+                ]);
+            });
+
+            return response()->json([
+                'success' => true,
+                'tables' => array_values($filteredTables)
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors de la récupération des tables: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération des tables'
+            ], 500);
+        }
+    }
+
+    /**
+     * Récupère les colonnes d'une table spécifique
+     *
+     * @param string $tableName
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getTableColumns($tableName)
+    {
+        try {
+            // Validation du nom de table pour éviter les injections SQL
+            if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $tableName)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nom de table invalide'
+                ], 400);
+            }
+
+            $columns = \DB::select("DESCRIBE `{$tableName}`");
+            $columnData = [];
+
+            foreach ($columns as $column) {
+                $columnData[] = [
+                    'name' => $column->Field,
+                    'type' => $column->Type,
+                    'null' => $column->Null,
+                    'key' => $column->Key,
+                    'default' => $column->Default,
+                    'extra' => $column->Extra
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'columns' => $columnData
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors de la récupération des colonnes: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération des colonnes'
+            ], 500);
         }
     }
 
